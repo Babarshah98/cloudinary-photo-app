@@ -1,31 +1,44 @@
-"use client"
-import { CldUploadButton } from "next-cloudinary";
-import { UploadResult } from "../page";
-import { Button } from "@/components/ui/button";
+import CloudinaryImage from "./cloudinary_images"
+import UploadButton from "./upload_button"
+import cloudinary from "cloudinary"
 
-export default function Gallery() {
+
+type SearchResult= {
+    public_id:string
+}
+
+export default async function GalleryPage() {
+    const results=  await cloudinary.v2.search
+                  .expression('resource_type:image ')
+                  .sort_by('created_at','desc')
+                  .max_results(30)
+                 .execute() as {resources:SearchResult[]}
+                 
+                 
+
     return (
         <section>
             <div className="flex justify-between">
-            <h1 className="text-2xl font-bold">
-                Gallery
-            </h1>
-            <Button asChild className="bg-black hover:bg-slate-700 text-white">
-                <div className="flex gap-2"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
-                       strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                        <path strokeLinecap="round" strokeLinejoin="round" 
-                        d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-                    </svg>
-                
-            <CldUploadButton
-           //  onUpload={(result: UploadResult) => 
-            //   setImageId(result.info.public_id)}
-    
-           uploadPreset="shvwhn8i" />
-           </div>
+                 <h1 className="text-4xl font-bold">
+                   Gallery
+                 </h1>
+                 <div>
+                  <UploadButton/>
+                  </div>
+            </div>
+            <div className="grid grid-cols-4 gap-4 mt-6">
+                 {results.resources.map((result) => (
+                   <CloudinaryImage key={result.public_id}
+                     src={result.public_id}
+                     height='300'
+                     width='400'
+                     alt='a Image'
+                    />
 
-           </Button>
+           ) )
+           }
            </div>
+           
 
         </section>
     )
